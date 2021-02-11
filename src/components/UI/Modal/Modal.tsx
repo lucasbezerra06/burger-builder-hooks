@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import classes from './Modal.module.css';
 import Backdrop from '../Backdrop/Backdrop';
@@ -8,7 +8,7 @@ interface ModalProps {
     modalClosed: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
-const Modal: React.FC<ModalProps> = memo((props) => {
+const Modal: React.FC<ModalProps> = React.memo((props) => {
     return (
         <>
             <Backdrop show={props.show} clicked={props.modalClosed} />
@@ -23,6 +23,6 @@ const Modal: React.FC<ModalProps> = memo((props) => {
             </div>
         </>
     );
-})
+}, (prevProps, nextProps) => nextProps.show === prevProps.show && nextProps.children === prevProps.children)
 
 export default Modal;
