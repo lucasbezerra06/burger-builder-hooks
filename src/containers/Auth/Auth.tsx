@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import z from "zod";
 
 import axiosOrders from "../../axios-orders";
 import Input from "../../components/UI/Input/Input";
@@ -13,16 +14,24 @@ import { Form } from "../../components/UI/Input/types";
 import { useBurgerBuilderStore } from "../../stores/burgerBuilderStore";
 import { useAuthStore } from "../../stores/authStore";
 
+const authResponseValidator = z.object({
+  idToken: z.string(),
+  localId: z.string(),
+  expiresIn: z.string(),
+});
+
+type AuthResponseType = z.infer<typeof authResponseValidator>;
+
 const useAuth = () => {
   const authSuccess = useAuthStore((state) => state.authSuccess);
   const checkAuthTimeout = useAuthStore((state) => state.checkAuthTimeout);
 
   return useMutation<
-    any,
+    AuthResponseType,
     AxiosError<any>,
     { email: string; password: string; isSignup: boolean }
   >(
-    async (payload) => {
+    async (payload: { email: string; password: string; isSignup: boolean }) => {
       const authData = {
         email: payload.email,
         password: payload.password,
@@ -34,13 +43,13 @@ const useAuth = () => {
         : "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBe2mv8OgwabohGNFWsokEChJ9xXZ9enj4";
 
       const response = await axiosOrders.post(url, authData);
-      return response.data;
+      return authResponseValidator.parse(response.data);
     },
     {
       onSuccess(data) {
         const { idToken, localId, expiresIn } = data;
         const expirationDate = new Date(
-          new Date().getTime() + expiresIn * 1000
+          new Date().getTime() + Number(expiresIn) * 1000
         );
         window.localStorage.setItem("token", idToken);
         window.localStorage.setItem(
@@ -49,7 +58,7 @@ const useAuth = () => {
         );
         window.localStorage.setItem("userId", localId);
         authSuccess(idToken, localId);
-        checkAuthTimeout(expiresIn);
+        checkAuthTimeout(Number(expiresIn));
       },
     }
   );

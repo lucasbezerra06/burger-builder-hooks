@@ -1,10 +1,10 @@
 import React from 'react';
-import { Ingredients } from '../../stores/burgerBuilderStore';
+import type { IngredientsType } from '../../stores/burgerBuilderStore';
 
 import classes from './Order.module.css';
 
 interface OrderProps {
-    ingredients: Ingredients | null;
+    ingredients: IngredientsType | null;
     price: number;
 }
 

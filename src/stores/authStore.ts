@@ -46,10 +46,12 @@ export const useAuthStore = create<{
     set({authStateChecked: true});
   },
   checkAuthTimeout: (expirationTime: number) => {
+    console.log({expirationTime});
     if (authTimeout != null) {
       clearTimeout(authTimeout)
     }
     authTimeout = setTimeout(() => {
+      console.log("logout")
       get().authLogout();
     }, expirationTime * 1000);
   }
