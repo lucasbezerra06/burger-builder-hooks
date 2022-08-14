@@ -6,6 +6,7 @@ export const useAuthStore = create<{
   token: null | string;
   userId: null | string;
   authRedirectPath: string;
+  authStateChecked: boolean;
   setAuthRedirectPath: (path: string) => void;
   authSuccess: (token: string, userId: string) => void;
   authLogout: () => void;
@@ -15,6 +16,7 @@ export const useAuthStore = create<{
   token: null,
   userId: null,
   authRedirectPath: "/",
+  authStateChecked: false,
   setAuthRedirectPath: (path) => set({ authRedirectPath: path }),
   authSuccess: (token, userId) =>
     set({
@@ -41,6 +43,7 @@ export const useAuthStore = create<{
         get().checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 100);
       }
     }
+    set({authStateChecked: true});
   },
   checkAuthTimeout: (expirationTime: number) => {
     if (authTimeout != null) {

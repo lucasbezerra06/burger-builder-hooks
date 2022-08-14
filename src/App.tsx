@@ -22,6 +22,7 @@ const App = () => {
 
   const isAuthenticated = useAuthStore((state) => state.token !== null);
   const authCheckState = useAuthStore((state) => state.authCheckState);
+  const authStateChecked = useAuthStore((state) => state.authStateChecked);
 
   useEffect(() => {
     authCheckState();
@@ -52,7 +53,7 @@ const App = () => {
     <div>
       <Layout>
         <Suspense fallback={<p>Loading...</p>}>
-          {routes}
+          {authStateChecked ? routes : null}
         </Suspense>
       </Layout>
     </div>

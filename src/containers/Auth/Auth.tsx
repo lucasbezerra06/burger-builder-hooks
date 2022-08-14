@@ -14,24 +14,45 @@ import { useBurgerBuilderStore } from "../../stores/burgerBuilderStore";
 import { useAuthStore } from "../../stores/authStore";
 
 const useAuth = () => {
+  const authSuccess = useAuthStore((state) => state.authSuccess);
+  const checkAuthTimeout = useAuthStore((state) => state.checkAuthTimeout);
+
   return useMutation<
     any,
     AxiosError<any>,
     { email: string; password: string; isSignup: boolean }
-  >(async (payload) => {
-    const authData = {
-      email: payload.email,
-      password: payload.password,
-      returnSecureToken: true,
-    };
+  >(
+    async (payload) => {
+      const authData = {
+        email: payload.email,
+        password: payload.password,
+        returnSecureToken: true,
+      };
 
-    const url = payload.isSignup
-      ? "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBe2mv8OgwabohGNFWsokEChJ9xXZ9enj4"
-      : "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBe2mv8OgwabohGNFWsokEChJ9xXZ9enj4";
+      const url = payload.isSignup
+        ? "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBe2mv8OgwabohGNFWsokEChJ9xXZ9enj4"
+        : "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBe2mv8OgwabohGNFWsokEChJ9xXZ9enj4";
 
-    const response = await axiosOrders.post(url, authData);
-    return response.data;
-  });
+      const response = await axiosOrders.post(url, authData);
+      return response.data;
+    },
+    {
+      onSuccess(data) {
+        const { idToken, localId, expiresIn } = data;
+        const expirationDate = new Date(
+          new Date().getTime() + expiresIn * 1000
+        );
+        window.localStorage.setItem("token", idToken);
+        window.localStorage.setItem(
+          "expirationDate",
+          expirationDate.toString()
+        );
+        window.localStorage.setItem("userId", localId);
+        authSuccess(idToken, localId);
+        checkAuthTimeout(expiresIn);
+      },
+    }
+  );
 };
 
 const Auth = () => {
@@ -41,8 +62,6 @@ const Auth = () => {
   const setAuthRedirectPath = useAuthStore(
     (state) => state.setAuthRedirectPath
   );
-  const authSuccess = useAuthStore((state) => state.authSuccess);
-  const checkAuthTimeout = useAuthStore((state) => state.checkAuthTimeout);
   const isAuthenticated = useAuthStore((state) => state.token !== null);
 
   const { mutate, isLoading, error } = useAuth();
@@ -107,25 +126,7 @@ const Auth = () => {
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { email, password } = authForm;
-    mutate(
-      { email: email.value, password: password.value, isSignup },
-      {
-        onSuccess(data) {
-          const { idToken, localId, expiresIn } = data;
-          const expirationDate = new Date(
-            new Date().getTime() + expiresIn * 1000
-          );
-          window.localStorage.setItem("token", idToken);
-          window.localStorage.setItem(
-            "expirationDate",
-            expirationDate.toString()
-          );
-          window.localStorage.setItem("userId", localId);
-          authSuccess(idToken, localId);
-          checkAuthTimeout(expiresIn);
-        },
-      }
-    );
+    mutate({ email: email.value, password: password.value, isSignup });
   };
 
   const swithAuthModeHandler = () => {
@@ -176,11 +177,14 @@ const Auth = () => {
       {errorMessage}
       <form onSubmit={submitHandler}>
         {form}
-        <Button btnType="Success">SUBMIT</Button>
+        <Button btnType="Success">{isSignup ? "Sign up" : "Log in"}</Button>
       </form>
-      <Button clicked={swithAuthModeHandler} btnType="Danger">
-        SWITCH TO {isSignup ? "SIGIN" : "SIGNUP"}
-      </Button>
+      <div>
+        {isSignup ? "Have an account?" : "Don't have an account?"}
+        <Button clicked={swithAuthModeHandler} btnType="Danger">
+          {isSignup ? "Log in" : "Sign up"}
+        </Button>
+      </div>
     </div>
   );
 };
