@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import shallow from 'zustand/shallow';
 
@@ -8,23 +7,23 @@ import Burger from '../../components/Burger/Burger';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import Modal from '../../components/UI/Modal/Modal';
 import Spinner from '../../components/UI/Spinner/Spinner';
-import { ApplicationState } from '../../store';
-import { setAuthRedirectPath } from '../../store/ducks/auth/actions';
 import axios from '../../axios-orders';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
-import { useBurgerBuilderStore } from '../../burgerBuilderStore';
+import { useBurgerBuilderStore } from '../../stores/burgerBuilderStore';
+import { useAuthStore } from '../../stores/authStore';
 
 const BurgerBuilder: React.FC = () => {
     const [purchasing, setPurchasing] = useState(false);
 
     const history = useHistory();
 
-    const dispatch = useDispatch();
     const initIngredients = useBurgerBuilderStore(state => state.initIngredients);
 
     const ingredients = useBurgerBuilderStore(state => state.ingredients, shallow);
     const error = useBurgerBuilderStore(state => state.error);
-    const isAuthenticated = useSelector((state: ApplicationState) => state.auth.token !== null);
+
+    const isAuthenticated = useAuthStore((state) => state.token !== null);
+    const setAuthRedirectPath = useAuthStore((state) => state.setAuthRedirectPath);
 
     useEffect(() => {
         initIngredients();
@@ -34,7 +33,7 @@ const BurgerBuilder: React.FC = () => {
         if (isAuthenticated) {
             setPurchasing(true);
         } else {
-            dispatch(setAuthRedirectPath('/checkout'));
+            setAuthRedirectPath('/checkout');
             history.push('/auth');
         }
     }

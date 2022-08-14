@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { logout } from '../../../store/ducks/auth/actions';
+import { useAuthStore } from '../../../stores/authStore';
 
 const Logout = () => {
-    const dispatch = useDispatch();
+    const authLogout = useAuthStore((state) => state.authLogout);
 
     useEffect(() => {
-        dispatch(logout());
-    }, [dispatch]);
+        authLogout();
+    }, [authLogout]);
 
     return <Redirect to="/" />
 }

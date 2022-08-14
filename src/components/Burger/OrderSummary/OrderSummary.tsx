@@ -1,6 +1,6 @@
 import React from 'react';
 import shallow from 'zustand/shallow';
-import { useBurgerBuilderStore } from '../../../burgerBuilderStore';
+import { useBurgerBuilderStore } from '../../../stores/burgerBuilderStore';
 import Button from '../../UI/Button/Button';
 
 interface OrderSummaryProps {

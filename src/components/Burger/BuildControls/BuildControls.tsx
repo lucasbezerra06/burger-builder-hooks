@@ -2,7 +2,7 @@ import React from 'react';
 
 import classes from './BuildControls.module.css';
 import BuildControl from './BuildControl/BuildControl';
-import { useBurgerBuilderStore } from '../../../burgerBuilderStore';
+import { useBurgerBuilderStore } from '../../../stores/burgerBuilderStore';
 
 const controls = [
     { label: 'Salad', type: 'salad' },

@@ -1,13 +1,12 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 
 import Order from '../../components/Order/Order';
 import { Order as OrderType } from '../Checkout/ContactData/ContactData';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import axios from '../../axios-orders';
-import { ApplicationState } from '../../store';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import { useAuthStore } from '../../stores/authStore';
 
 const useOrders = (payload: {
     token: string;
@@ -31,8 +30,8 @@ const useOrders = (payload: {
 
 const Orders: React.FC = () => {
 
-    const token = useSelector((state: ApplicationState) => state.auth.token);
-    const userId = useSelector((state: ApplicationState) => state.auth.userId);
+    const token = useAuthStore((state) => state.token);
+    const userId = useAuthStore((state) => state.userId);
 
     const { data: orders, isLoading } = useOrders({ token: token ?? '', userId: userId ?? '' })
 

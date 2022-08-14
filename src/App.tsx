@@ -1,12 +1,10 @@
 import React, { useEffect, Suspense } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Switch, Route, Redirect } from 'react-router-dom';
+import { useAuthStore } from './stores/authStore';
 import Logout from './containers/Auth/Logout/Logout';
 import BurgerBuilder from './containers/BurgerBuilder/BurgerBuilder';
 
 import Layout from './hoc/Layout/Layout';
-import { ApplicationState } from './store';
-import { authCheckState } from './store/ducks/auth/actions';
 
 const Checkout = React.lazy(() => {
   return import('./containers/Checkout/Checkout');
@@ -21,13 +19,13 @@ const Auth = React.lazy(() => {
 });
 
 const App = () => {
-  const dispatch = useDispatch();
 
-  const isAuthenticated = useSelector((state: ApplicationState) => state.auth.token !== null);
+  const isAuthenticated = useAuthStore((state) => state.token !== null);
+  const authCheckState = useAuthStore((state) => state.authCheckState);
 
   useEffect(() => {
-    dispatch(authCheckState());
-  }, [dispatch]);
+    authCheckState();
+  }, [authCheckState]);
 
   let routes = (
     <Switch>

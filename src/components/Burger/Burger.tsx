@@ -1,7 +1,7 @@
 import React from 'react';
 import shallow from 'zustand/shallow';
 
-import { useBurgerBuilderStore } from '../../burgerBuilderStore';
+import { useBurgerBuilderStore } from '../../stores/burgerBuilderStore';
 
 import classes from './Burger.module.css';
 import BurgerIngredient from './BurgerIngredient/BurgerIngredient';

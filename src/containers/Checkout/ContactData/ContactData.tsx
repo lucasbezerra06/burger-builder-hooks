@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import shallow from "zustand/shallow";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -10,13 +9,13 @@ import Spinner from "../../../components/UI/Spinner/Spinner";
 import Input from "../../../components/UI/Input/Input";
 import withErrorHandler from "../../../hoc/withErrorHandler/withErrorHandler";
 import { updateObject, checkValidity } from "../../../shared/utility";
-import { ApplicationState } from "../../../store";
 import { Form } from "../../../components/UI/Input/types";
 import {
     Ingredients,
     useBurgerBuilderStore,
-} from "../../../burgerBuilderStore";
+} from "../../../stores/burgerBuilderStore";
 import { useHistory } from "react-router-dom";
+import { useAuthStore } from "../../../stores/authStore";
 
 export interface Order {
     id?: string;
@@ -47,8 +46,8 @@ const ContactData = () => {
         shallow
     );
     const price = useBurgerBuilderStore((state) => state.totalPrice);
-    const token = useSelector((state: ApplicationState) => state.auth.token);
-    const userId = useSelector((state: ApplicationState) => state.auth.userId);
+    const token = useAuthStore((state) => state.token);
+    const userId = useAuthStore((state) => state.userId);
 
     const { mutate, isLoading } = usePurchaseBurger();
 

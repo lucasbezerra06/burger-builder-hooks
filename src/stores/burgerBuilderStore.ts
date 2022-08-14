@@ -1,7 +1,7 @@
 import create from 'zustand';
 
-import axios from './axios-orders';
-import { updateObject } from './shared/utility';
+import axios from '../axios-orders';
+import { updateObject } from '../shared/utility';
 
 const INGREDIENT_PRICES: Ingredients = {
     salad: 0.5,

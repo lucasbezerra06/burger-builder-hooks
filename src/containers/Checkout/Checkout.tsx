@@ -2,7 +2,7 @@ import React from 'react';
 import { Redirect, Route, useHistory, useRouteMatch } from 'react-router-dom';
 import shallow from 'zustand/shallow';
 
-import { useBurgerBuilderStore } from '../../burgerBuilderStore';
+import { useBurgerBuilderStore } from '../../stores/burgerBuilderStore';
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary';
 import ContactData from './ContactData/ContactData';
 
