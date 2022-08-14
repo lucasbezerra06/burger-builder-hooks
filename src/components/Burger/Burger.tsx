@@ -1,24 +1,25 @@
 import React from 'react';
-import { Ingredients } from '../../store/ducks/burgerBuilder/types';
+import shallow from 'zustand/shallow';
+
+import { useBurgerBuilderStore } from '../../burgerBuilderStore';
 
 import classes from './Burger.module.css';
 import BurgerIngredient from './BurgerIngredient/BurgerIngredient';
 
-interface BurgerProps {
-    ingredients: Ingredients;
-}
 
-const Burger: React.FC<BurgerProps> = (props) => {
-    let transformedIngredients: JSX.Element[] | JSX.Element = Object.keys(props.ingredients)
+const Burger: React.FC = (props) => {
+    const ingredients = useBurgerBuilderStore(state => state.ingredients, shallow);
+
+    let transformedIngredients: JSX.Element[] | JSX.Element = ingredients ? Object.keys(ingredients)
         .map(igKey => {
-            return [...Array(props.ingredients[igKey])]
+            return [...Array(ingredients[igKey])]
                 .map((_, i) => (
                     <BurgerIngredient key={igKey + i} type={igKey} />
                 ))
         })
         .reduce((arr, el) => {
             return arr.concat(el);
-        }, []);
+        }, []) : [];
     if (transformedIngredients.length === 0) {
         transformedIngredients = <p>Please start adding ingredients!</p>;
     }

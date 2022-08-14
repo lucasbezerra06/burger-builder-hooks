@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import shallow from 'zustand/shallow';
 
 import classes from './ContactData.module.css';
 import Button from '../../../components/UI/Button/Button';
@@ -11,12 +12,13 @@ import { updateObject, checkValidity } from '../../../shared/utility';
 import { ApplicationState } from '../../../store';
 import { purchaseBurger } from '../../../store/ducks/order/actions';
 import { Form } from '../../../components/UI/Input/types';
+import { useBurgerBuilderStore } from '../../../burgerBuilderStore';
 
 const ContactData = () => {
     const dispatch = useDispatch();
 
-    const ingredients = useSelector((state: ApplicationState) => state.burgerBuilder.ingredients);
-    const price = useSelector((state: ApplicationState) => state.burgerBuilder.totalPrice);
+    const ingredients = useBurgerBuilderStore(state => state.ingredients, shallow);
+    const price = useBurgerBuilderStore(state => state.totalPrice);
     const loading = useSelector((state: ApplicationState) => state.order.loading);
     const token = useSelector((state: ApplicationState) => state.auth.token);
     const userId = useSelector((state: ApplicationState) => state.auth.userId);

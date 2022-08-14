@@ -1,4 +1,4 @@
-import { Ingredients } from "../burgerBuilder/types";
+import { Ingredients } from "../../../burgerBuilderStore";
 
 export enum OrderTypes {
     PURCHASE_INIT = '@order/PURCHASE_INIT',

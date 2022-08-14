@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ingredients } from '../../store/ducks/burgerBuilder/types';
+import { Ingredients } from '../../burgerBuilderStore';
 
 import classes from './Order.module.css';
 

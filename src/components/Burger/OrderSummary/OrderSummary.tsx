@@ -1,20 +1,22 @@
 import React from 'react';
-import { Ingredients } from '../../../store/ducks/burgerBuilder/types';
+import shallow from 'zustand/shallow';
+import { useBurgerBuilderStore } from '../../../burgerBuilderStore';
 import Button from '../../UI/Button/Button';
 
 interface OrderSummaryProps {
-    price: number;
-    ingredients: Ingredients | null;
     purchaseCancelled: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
     purchaseContinued: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = (props) => {
-    const ingredientSummary = Object.keys(props.ingredients ? props.ingredients : {})
+    const totalPrice = useBurgerBuilderStore(state => state.totalPrice);
+    const ingredients = useBurgerBuilderStore(state => state.ingredients, shallow);
+
+    const ingredientSummary = Object.keys(ingredients ? ingredients : {})
         .map(igKey => {
             return (
                 <li key={igKey}>
-                    <span style={{ textTransform: 'capitalize' }}>{igKey}</span>: {props.ingredients ? props.ingredients[igKey] : 0}
+                    <span style={{ textTransform: 'capitalize' }}>{igKey}</span>: {ingredients ? ingredients[igKey] : 0}
                 </li>
             );
         })
@@ -26,7 +28,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = (props) => {
             <ul>
                 {ingredientSummary}
             </ul>
-            <p><strong>Total Price: {props.price.toFixed(2)}</strong></p>
+            <p><strong>Total Price: {totalPrice.toFixed(2)}</strong></p>
             <p>Continue to Checkout?</p>
             <Button btnType="Danger" clicked={props.purchaseCancelled}>CANCEL</Button>
             <Button btnType="Success" clicked={props.purchaseContinued}>CONTINUE</Button>

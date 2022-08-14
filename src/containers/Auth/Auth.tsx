@@ -10,9 +10,10 @@ import { updateObject, checkValidity } from '../../shared/utility';
 import { ApplicationState } from '../../store';
 import { auth, setAuthRedirectPath } from '../../store/ducks/auth/actions';
 import { Form } from '../../components/UI/Input/types';
+import { useBurgerBuilderStore } from '../../burgerBuilderStore';
 
 const Auth = () => {
-    const buildingBurguer = useSelector((state: ApplicationState) => state.burgerBuilder.building);
+    const buildingBurguer = useBurgerBuilderStore(state => state.building);
     const authRedirectPath = useSelector((state: ApplicationState) => state.auth.authRedirectPath);
     const loading = useSelector((state: ApplicationState) => state.auth.loading);
     const error = useSelector((state: ApplicationState) => state.auth.error);
