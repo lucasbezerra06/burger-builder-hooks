@@ -7,7 +7,7 @@ import { OrderState } from './ducks/order/types';
 import rootReducer from './ducks/rootReducer';
 import { watchAuth, watchBurgerBuilder, watchOrder } from './ducks/rootSaga';
 
-const composeEnhancers = process.env.NODE_ENV === 'development' ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null || compose;
+const composeEnhancers = process.env.NODE_ENV === 'development' ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose: compose;
 
 export interface ApplicationState{
     auth: AuthState;
