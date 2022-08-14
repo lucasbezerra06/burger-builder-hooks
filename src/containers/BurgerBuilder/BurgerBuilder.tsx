@@ -11,7 +11,6 @@ import Spinner from '../../components/UI/Spinner/Spinner';
 import { ApplicationState } from '../../store';
 import { setAuthRedirectPath } from '../../store/ducks/auth/actions';
 import axios from '../../axios-orders';
-import { purchaseInit } from '../../store/ducks/order/actions';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import { useBurgerBuilderStore } from '../../burgerBuilderStore';
 
@@ -45,7 +44,6 @@ const BurgerBuilder: React.FC = () => {
     }
 
     const purchaseContinueHandler = () => {
-        dispatch(purchaseInit());
         history.push('/checkout');
     }
 

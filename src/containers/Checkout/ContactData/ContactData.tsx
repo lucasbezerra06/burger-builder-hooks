@@ -1,37 +1,66 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import shallow from 'zustand/shallow';
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import shallow from "zustand/shallow";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import classes from './ContactData.module.css';
-import Button from '../../../components/UI/Button/Button';
-import axios from '../../../axios-orders';
-import Spinner from '../../../components/UI/Spinner/Spinner';
-import Input from '../../../components/UI/Input/Input';
-import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
-import { updateObject, checkValidity } from '../../../shared/utility';
-import { ApplicationState } from '../../../store';
-import { purchaseBurger } from '../../../store/ducks/order/actions';
-import { Form } from '../../../components/UI/Input/types';
-import { useBurgerBuilderStore } from '../../../burgerBuilderStore';
+import classes from "./ContactData.module.css";
+import Button from "../../../components/UI/Button/Button";
+import axios from "../../../axios-orders";
+import Spinner from "../../../components/UI/Spinner/Spinner";
+import Input from "../../../components/UI/Input/Input";
+import withErrorHandler from "../../../hoc/withErrorHandler/withErrorHandler";
+import { updateObject, checkValidity } from "../../../shared/utility";
+import { ApplicationState } from "../../../store";
+import { Form } from "../../../components/UI/Input/types";
+import {
+    Ingredients,
+    useBurgerBuilderStore,
+} from "../../../burgerBuilderStore";
+import { useHistory } from "react-router-dom";
+
+export interface Order {
+    id?: string;
+    ingredients: Ingredients | null;
+    orderData: { [key: string]: string };
+    price: number;
+    userId: string | null;
+}
+
+const usePurchaseBurger = () => {
+    const queryClient = useQueryClient();
+    return useMutation(async (payload: { token: string; orderData: Order }) => {
+        return (
+            await axios.post("/orders.json?auth=" + payload.token, payload.orderData)
+        ).data;
+    }, {
+        onSettled(_data, _error, variables) {
+            queryClient.invalidateQueries(['orders', variables.token]);
+        },
+    });
+};
 
 const ContactData = () => {
-    const dispatch = useDispatch();
+    const history = useHistory();
 
-    const ingredients = useBurgerBuilderStore(state => state.ingredients, shallow);
-    const price = useBurgerBuilderStore(state => state.totalPrice);
-    const loading = useSelector((state: ApplicationState) => state.order.loading);
+    const ingredients = useBurgerBuilderStore(
+        (state) => state.ingredients,
+        shallow
+    );
+    const price = useBurgerBuilderStore((state) => state.totalPrice);
     const token = useSelector((state: ApplicationState) => state.auth.token);
     const userId = useSelector((state: ApplicationState) => state.auth.userId);
+
+    const { mutate, isLoading } = usePurchaseBurger();
 
     const [formIsValid, setFormIsValid] = useState(false);
     const [orderForm, setOrderForm] = useState<Form>({
         name: {
-            elementType: 'input',
+            elementType: "input",
             elementConfig: {
-                type: 'text',
-                placeholder: 'Your Name'
+                type: "text",
+                placeholder: "Your Name",
             },
-            value: '',
+            value: "",
             validation: {
                 required: true,
             },
@@ -39,12 +68,12 @@ const ContactData = () => {
             touched: false,
         },
         street: {
-            elementType: 'input',
+            elementType: "input",
             elementConfig: {
-                type: 'text',
-                placeholder: 'Street'
+                type: "text",
+                placeholder: "Street",
             },
-            value: '',
+            value: "",
             validation: {
                 required: true,
             },
@@ -52,12 +81,12 @@ const ContactData = () => {
             touched: false,
         },
         zipCode: {
-            elementType: 'input',
+            elementType: "input",
             elementConfig: {
-                type: 'text',
-                placeholder: 'ZIP Code'
+                type: "text",
+                placeholder: "ZIP Code",
             },
-            value: '',
+            value: "",
             validation: {
                 required: true,
                 minLength: 5,
@@ -67,12 +96,12 @@ const ContactData = () => {
             touched: false,
         },
         country: {
-            elementType: 'input',
+            elementType: "input",
             elementConfig: {
-                type: 'text',
-                placeholder: 'Country'
+                type: "text",
+                placeholder: "Country",
             },
-            value: '',
+            value: "",
             validation: {
                 required: true,
             },
@@ -80,12 +109,12 @@ const ContactData = () => {
             touched: false,
         },
         email: {
-            elementType: 'input',
+            elementType: "input",
             elementConfig: {
-                type: 'email',
-                placeholder: 'Your E-Mail'
+                type: "email",
+                placeholder: "Your E-Mail",
             },
-            value: '',
+            value: "",
             validation: {
                 required: true,
                 isEmail: true,
@@ -94,15 +123,15 @@ const ContactData = () => {
             touched: false,
         },
         deliveryMethod: {
-            elementType: 'select',
+            elementType: "select",
             elementConfig: {
                 options: [
-                    { value: 'fasted', displayValue: 'Fastest' },
-                    { value: 'cheapest', displayValue: 'Cheapest' }
-                ]
+                    { value: "fasted", displayValue: "Fastest" },
+                    { value: "cheapest", displayValue: "Cheapest" },
+                ],
             },
             validation: {},
-            value: 'fasted',
+            value: "fasted",
             valid: true,
         },
     });
@@ -120,14 +149,26 @@ const ContactData = () => {
             price: price,
             orderData: formData,
             userId: userId,
-        }
-        dispatch(purchaseBurger(order, token || ""));
-    }
+        };
+        mutate({ orderData: order, token: token ?? '' }, {
+            onSuccess() {
+                history.push("/");
+            },
+        });
+    };
 
-    const inputChangedHandler = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, inputIdentifier: string) => {
+    const inputChangedHandler = (
+        event: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >,
+        inputIdentifier: string
+    ) => {
         const updatedFormElement = updateObject(orderForm[inputIdentifier], {
             value: event.target.value,
-            valid: checkValidity(event.target.value, orderForm[inputIdentifier].validation),
+            valid: checkValidity(
+                event.target.value,
+                orderForm[inputIdentifier].validation
+            ),
             touched: true,
         });
 
@@ -136,14 +177,14 @@ const ContactData = () => {
         });
 
         const isFormValid = Object.keys(updatedOrderForm)
-            .map(key => {
+            .map((key) => {
                 return updatedOrderForm[key].valid;
             })
             .reduce((prev, curr) => prev && curr);
 
         setOrderForm(updatedOrderForm);
         setFormIsValid(isFormValid);
-    }
+    };
 
     const formElementsArray = [];
     for (let key in orderForm) {
@@ -155,7 +196,7 @@ const ContactData = () => {
 
     let form = (
         <form onSubmit={orderHandler}>
-            {formElementsArray.map(formElement => (
+            {formElementsArray.map((formElement) => (
                 <Input
                     key={formElement.id}
                     elementType={formElement.config.elementType}
@@ -164,20 +205,17 @@ const ContactData = () => {
                     invalid={!formElement.config.valid}
                     shouldValidate={formElement.config.validation}
                     touched={formElement.config.touched}
-                    changed={(event) => inputChangedHandler(event, formElement.id)} />
+                    changed={(event) => inputChangedHandler(event, formElement.id)}
+                />
             ))}
-            <Button
-                disabled={!formIsValid}
-                btnType="Success"
-                type="submit"
-            >
+            <Button disabled={!formIsValid} btnType="Success" type="submit">
                 ORDER
             </Button>
         </form>
     );
 
-    if (loading) {
-        form = <Spinner />
+    if (isLoading) {
+        form = <Spinner />;
     }
 
     return (
@@ -186,7 +224,6 @@ const ContactData = () => {
             {form}
         </div>
     );
-
-}
+};
 
 export default withErrorHandler(ContactData, axios);

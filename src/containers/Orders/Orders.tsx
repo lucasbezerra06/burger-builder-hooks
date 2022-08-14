@@ -1,26 +1,45 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
+
 import Order from '../../components/Order/Order';
+import { Order as OrderType } from '../Checkout/ContactData/ContactData';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import axios from '../../axios-orders';
 import { ApplicationState } from '../../store';
-import { fetchOrders } from '../../store/ducks/order/actions';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 
-const Orders: React.FC = () => {
-    const dispatch = useDispatch();
+const useOrders = (payload: {
+    token: string;
+    userId: string;
+}) => {
+    return useQuery(['orders', payload.token], async () => {
+        const queryParams = '?auth=' + payload.token + '&orderBy="userId"&equalTo="' + payload.userId + '"';
+        const response = await axios.get('/orders.json' + queryParams);
+        const fetchedOrders: OrderType[] = [];
+        for (let key in response.data) {
+            fetchedOrders.push({
+                id: key,
+                price: Number.parseFloat(response.data[key]),
+                ...response.data[key]
+            });
+        }
+        return fetchedOrders;
 
-    const loading = useSelector((state: ApplicationState) => state.order.loading);
-    const orders = useSelector((state: ApplicationState) => state.order.orders);
+    });
+}
+
+const Orders: React.FC = () => {
+
     const token = useSelector((state: ApplicationState) => state.auth.token);
     const userId = useSelector((state: ApplicationState) => state.auth.userId);
 
-    useEffect(() => {
-        dispatch(fetchOrders(token || "", userId || ""))
-    }, [dispatch, token, userId]);
+    const { data: orders, isLoading } = useOrders({ token: token ?? '', userId: userId ?? '' })
 
-    let ordersList: JSX.Element | JSX.Element[] = <Spinner />;
-    if (!loading) {
+    let ordersList: JSX.Element | JSX.Element[] = [];
+    if (isLoading) {
+        ordersList = <Spinner />;
+    } else if (orders) {
         ordersList = orders.map(order => (
             <Order
                 key={order.id}
@@ -28,6 +47,7 @@ const Orders: React.FC = () => {
                 price={order.price} />
         ));
     }
+
     return (
         <div>
             {ordersList}
