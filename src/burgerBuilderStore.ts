@@ -1,4 +1,6 @@
 import create from 'zustand';
+
+import axios from './axios-orders';
 import { updateObject } from './shared/utility';
 
 const INGREDIENT_PRICES: Ingredients = {
@@ -28,7 +30,7 @@ export const useBurgerBuilderStore = create<{
     addIngredient: (type: string) => void;
     removeIngredient: (type: string) => void;
     setIngredients: (ingredients: Ingredients) => void;
-    fetchIngredientsFailed: () => void;
+    initIngredients: () => void;
 }>((set) => ({
     ingredients: null,
     totalPrice: 4,
@@ -68,5 +70,22 @@ export const useBurgerBuilderStore = create<{
             building: false,
         });
     }),
-    fetchIngredientsFailed: () => set((state) => ({ error: true }))
+    initIngredients: async () => {
+        try {
+            const { data: ingredients } = await axios.get<Ingredients>('https://react-my-burger-14162.firebaseio.com/ingredients.json');
+            set((state) => ({
+                ingredients: {
+                    salad: ingredients.salad,
+                    bacon: ingredients.bacon,
+                    cheese: ingredients.cheese,
+                    meat: ingredients.meat,
+                },
+                totalPrice: 4,
+                error: false,
+                building: false,
+            }))
+        } catch (err) {
+            set((state) => ({ error: true }));
+        }
+    }
 }))

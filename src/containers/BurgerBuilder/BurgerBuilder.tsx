@@ -13,7 +13,7 @@ import { setAuthRedirectPath } from '../../store/ducks/auth/actions';
 import axios from '../../axios-orders';
 import { purchaseInit } from '../../store/ducks/order/actions';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
-import { Ingredients, useBurgerBuilderStore } from '../../burgerBuilderStore';
+import { useBurgerBuilderStore } from '../../burgerBuilderStore';
 
 const BurgerBuilder: React.FC = () => {
     const [purchasing, setPurchasing] = useState(false);
@@ -21,21 +21,15 @@ const BurgerBuilder: React.FC = () => {
     const history = useHistory();
 
     const dispatch = useDispatch();
-    const setIngredients = useBurgerBuilderStore(state => state.setIngredients);
-    const fetchIngredientsFailed = useBurgerBuilderStore(state => state.fetchIngredientsFailed);
+    const initIngredients = useBurgerBuilderStore(state => state.initIngredients);
 
     const ingredients = useBurgerBuilderStore(state => state.ingredients, shallow);
     const error = useBurgerBuilderStore(state => state.error);
     const isAuthenticated = useSelector((state: ApplicationState) => state.auth.token !== null);
 
     useEffect(() => {
-        axios.get<Ingredients>('https://react-my-burger-14162.firebaseio.com/ingredients.json')
-            .then(response => {
-                setIngredients(response.data);
-            }).catch(() => {
-                fetchIngredientsFailed();
-            })
-    }, [fetchIngredientsFailed, setIngredients]);
+        initIngredients();
+    }, [initIngredients]);
 
     const purchaseHandler = () => {
         if (isAuthenticated) {
