@@ -147,6 +147,7 @@ const ContactData = () => {
       { orderData: order },
       {
         onSuccess() {
+          window.clarity("set", "order", userId || "")
           history.push("/");
         },
       }
