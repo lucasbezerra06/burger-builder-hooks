@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter } from 'react-router-dom';
+import ReactGA from "react-ga4";
 
-import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
 
-const queryClient = new QueryClient()
+import './index.css';
+
+ReactGA.initialize("G-XF5KV527Z8");
+
+const queryClient = new QueryClient();
 
 ReactDOM.render(
   <BrowserRouter>

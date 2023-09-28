@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import shallow from "zustand/shallow";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useHistory } from "react-router-dom";
+import ReactGA from "react-ga4";
 
 import classes from "./ContactData.module.css";
 import Button from "../../../components/UI/Button/Button";
@@ -148,6 +149,9 @@ const ContactData = () => {
       {
         onSuccess() {
           history.push("/");
+          ReactGA.event("order", {
+            userId: userId,
+          });
         },
       }
     );
